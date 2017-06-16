@@ -1,11 +1,10 @@
-
 var fs = require('fs');
 var csv = require("fast-csv");
 var redis = require('redis');
 var client = redis.createClient();
 const pry = require('pryjs')
 var Airtable = require('airtable');
-var base = new Airtable({apiKey: 'keyK7hube384uNDmc'}).base('appNwUk0MQdtk41vZ');
+var base = new Airtable({apiKey: 'keyK7hube384uNDmc'}).base('appV10bsiCglxld1x');
 var bluebird = require("bluebird");
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
@@ -15,14 +14,15 @@ client.on('connect', function() {
 
 function pullRecords() {
   return new Promise(function (resolve, reject) {
-    base('DATA').select({
+    base('Imported table').select({
           // Selecting the first 3 records in Grid view:
-          maxRecords: 10,
+          maxRecords: 100,
           view: "Grid view"
       }).eachPage(function page(records, fetchNextPage) {
           // This function (`page`) will get called for each page of records.
 
           records.forEach(function(record) {
+
             console.log('Retrieved', record.get('Shopify Partner Id'));
             client.set(record.fields["Shopify Partner Id"], record.id);
           });
@@ -40,13 +40,10 @@ function pullRecords() {
 }
 
 function updateRecords() {
-  let csvstream = csv.fromPath("sandbox.csv", { headers: true })
+  let csvstream = csv.fromPath("grid.csv", { headers: true })
       .on("data", function (row) {
           csvstream.pause();
-          client.getAsync(row['Shopify Partner Id']).then(function(res) {
-            console.log(res); // => 'bar'
-          });
-          csvstream.resume();
+          performUpdate(row, csvstream.resume());
       })
       .on("end", function () {
           console.log("We are done!")
@@ -58,29 +55,37 @@ function updateRecords() {
 
 pullRecords();
 
+function performUpdate(data, fn) {
+  return new Promise(function (resolve, reject) {
+    client.getAsync(data['Shopify Partner Id']).then(function(res) {
+      base('Imported table').replace(res, {
+        "Shopify Partner Id": data["Shopify Partner Id"],
+        "Partner Company Name": data["Partner Company Name"],
+        "partner url": data["partner url"],
+        "Partner Is Current Shopify Expert": data["Partner Is Current Shopify Expert"],
+        "Partner Email": data["Partner Email"],
+        "Partner Contact First Name": data["Partner Contact First Name"],
+        "Partner Contact Last Name": data["Partner Contact Last Name"],
+        "Current Partner Manager": data["Current Partner Manager"],
+        "Partner Country": data["Partner Country"],
+        "Partner City": data["Partner City"],
+        "Partner Province": data["Partner Province"],
+        "Partner Created At (Est)": data["Partner Created At (Est)"],
+        "number of development shops created": data["number of development shops created"],
+        "Number Of New Leads": data["Number Of New Leads"],
+        "net customers change": data["net customers change"],
+        "Net Mrr Change": data["Net Mrr Change"],
+        "Shopify Partner Id 2": data["Shopify Partner Id 2"],
+        "Shopify Partner Id 3": data["Shopify Partner Id 3"]
+      }, function(err, record) {
+          if (err) { console.error(err); return; }
+          resolve(fn);
+          eval(pry.it);
+          console.log(record.get('Shopify Partner Id'));
+      });
+    })
+  })
+}
 
-// base('DATA').replace(res, {
-//   "Shopify Partner Id": row["Shopify Partner Id"],
-//   "Partner Company Name": [
-//     row["Partner Company Name"]
-//   ],
-//   "partner url": row["partner url"],
-//   "Partner Is Current Shopify Expert": row["Partner Is Current Shopify Expert"],
-//   "Partner Email": row["Partner Email"],
-//   "Partner Contact First Name": row["Partner Contact First Name"],
-//   "Partner Contact Last Name": row["Partner Contact Last Name"],
-//   "Current Partner Manager": row["Current Partner Manager"],
-//   "Partner Country": row["Partner Country"],
-//   "Partner City": row["Partner City"],
-//   "Partner Province": row["Partner Province"],
-//   "Partner Created At (Est)": row["Partner Created At (Est)"],
-//   "number of development shops created": row["number of development shops created"],
-//   "Number Of New Leads": row["Number Of New Leads"],
-//   "net customers change": row["net customers change"],
-//   "Net Mrr Change": row["Net Mrr Change"],
-//   "Shopify Partner Id 2": row["Shopify Partner Id 2"],
-//   "Shopify Partner Id 3": row["Shopify Partner Id 3"]
-// }, function(err, record) {
-//     if (err) { console.error(err); return; }
-//     console.log(record.get('Shopify Partner Id'));
-// });
+
+
