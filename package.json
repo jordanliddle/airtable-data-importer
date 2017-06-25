@@ -1,0 +1,25 @@
+{
+  "name": "airtable-data-importer",
+  "version": "1.0.0",
+  "description": "Data import tool for Partnerships",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jordanliddle/airtable-data-importer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jordanliddle/airtable-data-importer/issues"
+  },
+  "homepage": "https://github.com/jordanliddle/airtable-data-importer#readme",
+  "dependencies": {
+    "csv": "^1.1.1",
+    "dotenv": "^4.0.0",
+    "fs": "0.0.1-security",
+    "redis": "^2.7.1"
+  }
+}
