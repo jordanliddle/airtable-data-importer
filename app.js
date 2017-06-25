@@ -4,10 +4,12 @@ const fs      = require('fs');
 const csv     = require("fast-csv");
 const redis   = require('redis');
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.API_KEY,
+      BASE_NAME = process.env.BASE_NAME,
+      BASE_ID = process.env.BASE_ID;
 
 const Airtable = require('airtable');
-let base = new Airtable({apiKey: API_KEY}).base('appV10bsiCglxld1x');
+let base = new Airtable({apiKey: API_KEY}).base(BASE_ID);
 
 const bluebird = require("bluebird");
 bluebird.promisifyAll(redis.RedisClient.prototype);
@@ -19,7 +21,7 @@ client.on('connect', function() {
 });
 
 function pullAllRecords() {
-    base('Imported table').select({
+    base(BASE_NAME).select({
           // ensure the view is correct
           view: "Grid view"
       }).eachPage(function page(records, fetchNextPage) {
@@ -37,7 +39,7 @@ function pullAllRecords() {
 }
 
 function updateRecords() {
-  let csvstream = csv.fromPath("bigtest.csv", { headers: true })
+  let csvstream = csv.fromPath("sample.csv", { headers: true })
       .on("data", function (row) {
           // pause the stream
           csvstream.pause();
@@ -90,10 +92,10 @@ function performUpdate(data) {
     }
 
     if (res == null) {
-      const fn = bluebird.promisify(base('Imported table').create);
+      const fn = bluebird.promisify(base(BASE_NAME).create);
       return fn(record)
     } else {
-      const fn = bluebird.promisify(base('Imported table').replace);
+      const fn = bluebird.promisify(base(BASE_NAME).replace);
       return fn(res, record)
     }
   }).catch(function(e) {

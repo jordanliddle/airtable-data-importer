@@ -17,9 +17,15 @@ This importer tool use a `.env` file to store your API key. After cloning the re
 API_KEY=YOUR_API_KEY
 ```
 
-where `YOUR_API_KEY` is the value of your Airtable API key respectively. 
+where `YOUR_API_KEY` is the value of your Airtable API key respectively.
+
+
+You will also need to substitute your `BASE_ID` and `BASE_NAME` in your `.env` with the correct values which can be found [here](http://help.grow.com/connecting-your-data/airtable/airtable-setup-and-finding-your-base-id-and-base-name).
+
+Once you've configured your environment variables, you will need to add the CSV file you wish to import to the directory. 
 
 ## Running the app
 
-`$ node app.js`
+`$ redis-server`
 
+`$ node app.js`
