@@ -5,6 +5,7 @@ Simple and lightweight data importer tool for Shopify Partnerships.
 ## Requirements
 
 * [Node](https://nodejs.org/en/)
+
 * [Redis](https://redis.io/)
 
 ## Credentials
@@ -22,7 +23,7 @@ where `YOUR_API_KEY` is the value of your Airtable API key respectively.
 
 You will also need to substitute your `BASE_ID` and `BASE_NAME` in your `.env` with the correct values which can be found [here](http://help.grow.com/connecting-your-data/airtable/airtable-setup-and-finding-your-base-id-and-base-name).
 
-Once you've configured your environment variables, you will need to add the CSV file you wish to import to the directory. 
+Once you've configured your environment variables, you will need to add the CSV file you wish to import to the directory.
 
 ## Running the app
 
