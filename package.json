@@ -21,6 +21,7 @@
     "dotenv": "^4.0.0",
     "fs": "0.0.1-security",
     "install": "^0.10.1",
+    "limiter": "^1.1.2",
     "npm": "^5.0.4",
     "pryjs": "^1.0.3",
     "redis": "^2.7.1"

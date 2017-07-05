@@ -3,7 +3,6 @@ require('dotenv').config()
 const fs      = require('fs');
 const csv     = require("fast-csv");
 const redis   = require('redis');
-pry = require('pryjs')
 
 const API_KEY = process.env.API_KEY,
       BASE_NAME = process.env.BASE_NAME,
@@ -24,6 +23,7 @@ client.on('connect', function() {
 function pullAllRecords() {
     base(BASE_NAME).select({
           // ensure the view is correct
+          //  maxRecords: 75,
           view: "Grid view"
       }).eachPage(function page(records, fetchNextPage) {
           records.forEach(function(record) {
@@ -42,11 +42,10 @@ function pullAllRecords() {
 function updateRecords() {
   let csvstream = csv.fromPath("pleasework.csv", { headers: true })
       .on("data", function (row) {
-          // pause the stream
           csvstream.pause();
-          // send API request to update the record in Airtable
+          // send API request to update the record in Airtable.
           performUpdate(row)
-          .then(function() {
+          .then(delay(100)).then(function(data) {
             // resume the steam once record updates
             csvstream.resume();
           });
@@ -62,8 +61,14 @@ function updateRecords() {
       });
 }
 
-function cleanUpRemainingRecords() {
-
+function delay(delay) {
+  return function(data) {
+    return new Promise(function(resolve, reject) {
+      setTimeout(function() {
+        resolve(data);
+      }, delay);
+    });
+  }
 }
 
 function performUpdate(data) {
@@ -71,7 +76,6 @@ function performUpdate(data) {
   // get record primary key in Redis
   return client.getAsync(data['shopify partner id'])
   .then(function(res) {
-    // eval(pry.it)
     let record = {
       "shopify partner id":                                       data["shopify partner id"],
       "internal url":                                             data["internal url"],
@@ -93,10 +97,10 @@ function performUpdate(data) {
 
     if (res == null) {
       const fn = bluebird.promisify(base(BASE_NAME).create);
-      return fn(record)
+      return fn(record);
     } else {
       const fn = bluebird.promisify(base(BASE_NAME).update);
-      return fn(res, record)
+      return fn(res, record);
     }
   }).catch(function(e) {
     console.log(e)
