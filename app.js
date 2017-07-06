@@ -40,7 +40,7 @@ function pullAllRecords() {
 }
 
 function updateRecords() {
-  let csvstream = csv.fromPath("pleasework.csv", { headers: true })
+  let csvstream = csv.fromPath("{CSV file}", { headers: true })
       .on("data", function (row) {
           csvstream.pause();
           // send API request to update the record in Airtable.
