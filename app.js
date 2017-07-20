@@ -92,7 +92,7 @@ function performUpdate(data) {
       "net mrr change":                                           data["net mrr change"],
       "number of forum posts":                                    data["number of forum posts"],
       "number of new standard merchants":                         data["number of new standard merchants"],
-      "number of standard merchants upgraded to plus merchants":   data["number of standard merchants upgraded to plus merchants"]
+      "number of standard merchants upgraded to plus merchants":  data["number of standard merchants upgraded to plus merchants"]
     }
 
     if (res == null) {
