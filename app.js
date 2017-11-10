@@ -9,7 +9,7 @@ const API_KEY = process.env.API_KEY,
       BASE_ID = process.env.BASE_ID;
 
 const Airtable = require('airtable');
-let base = new Airtable({apiKey: API_KEY}).base(BASE_ID);
+let base = new Airtable({apiKey: API_KEY}).base('appxGOGhkQ6ueTKjI');
 
 const bluebird = require("bluebird");
 bluebird.promisifyAll(redis.RedisClient.prototype);
@@ -23,14 +23,15 @@ client.on('connect', function() {
 function pullAllRecords() {
     base(BASE_NAME).select({
           // ensure the view is correct
-          //  maxRecords: 75,
+           maxRecords: 50,
           view: "Grid view"
       }).eachPage(function page(records, fetchNextPage) {
           records.forEach(function(record) {
             // log each requested record
-            console.log('Retrieved', record.get('shopify partner id'));
+            console.log('Retrieved', record.get('app id'));
             // save the record to Redis
-            client.set(record.fields["shopify partner id"], record.id);
+            client.set(record.fields["app id"], record.id);
+            // client.set(record.fields["re"], record.app_relationship)
           });
           fetchNextPage();
       }, function done(err) {
@@ -40,7 +41,7 @@ function pullAllRecords() {
 }
 
 function updateRecords() {
-  let csvstream = csv.fromPath("{CSV file}", { headers: true })
+  let csvstream = csv.fromPath("example.csv", { headers: true })
       .on("data", function (row) {
           csvstream.pause();
           // send API request to update the record in Airtable.
@@ -74,32 +75,31 @@ function delay(delay) {
 function performUpdate(data) {
 
   // get record primary key in Redis
-  return client.getAsync(data['shopify partner id'])
+  return client.getAsync(data['app id'])
   .then(function(res) {
     let record = {
-      "shopify partner id":                                       data["shopify partner id"],
-      "internal url":                                             data["internal url"],
-      "hubspot_url":                                              data["hubspot_url"],
-      "partner url":                                              data["partner url"],
-      "partner is current shopify expert":                        data["partner is current shopify expert"],
-      "current partner manager":                                  data["current partner manager"],
-      "partner country":                                          data["partner country"],
-      "partner city":                                             data["partner city"],
-      "partner province":                                         data["partner province"],
-      "partner created at":                                       data["partner created at"],
-      "number of development shops created":                      data["number of development shops created"],
-      "net merchant change":                                      data["net merchant change"],
-      "net mrr change":                                           data["net mrr change"],
-      "number of forum posts":                                    data["number of forum posts"],
-      "number of new standard merchants":                         data["number of new standard merchants"],
-      "number of standard merchants upgraded to plus merchants":  data["number of standard merchants upgraded to plus merchants"]
+      "app name":   data["app name"]
+      "app name (app id) no commas"                                                 data["app name"],
+      "handle":                                             data["handle"],
+      "app_store_slug":                                              data["app_store_slug"],
+      "recommendable":                                              data["recommendable"],
+      "active installs":                        data["active installs"],
+      "net_installs_last_30_days":                                  data["net_installs_last_30_days"],
+      "billings_last_30_days":                                          data["billings_last_30_days"],
+      "average_rating":                                             data["average_rating"],
+      "number_of_reviews_in_average":                                         data["number_of_reviews_in_average"],
+      "first published":                                       data["first published"],
+      "country":                      data["country"],
+      "continent":                                      data["continent"],
+      "self reported pricing":                                           data["self reported pricing"],
+      "app category":                                    data["app category"]
     }
 
     if (res == null) {
-      const fn = bluebird.promisify(base(BASE_NAME).create);
+      const fn = bluebird.promisify(base('Imported table').create);
       return fn(record);
     } else {
-      const fn = bluebird.promisify(base(BASE_NAME).update);
+      const fn = bluebird.promisify(base('Imported table').update);
       return fn(res, record);
     }
   }).catch(function(e) {
